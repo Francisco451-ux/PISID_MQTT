@@ -11,10 +11,12 @@ public class main {
         cloudToMongoTemp.start();
         //MQTT2MYSQL serverMqttsub = new MQTT2MYSQL();
         //serverMqttsub.start();
+
         MQTT2MYSQL2TEMP serverMqtt2TEMPsub = new MQTT2MYSQL2TEMP();
         serverMqtt2TEMPsub.start();
         Mongo2MQTT2TEMP serverMqtt2TEMPpub = new Mongo2MQTT2TEMP();
         serverMqtt2TEMPpub.start();
+
         //Mongo2MQTT serverMqttpub = new Mongo2MQTT();
         //serverMqttpub.start();
         //cloudToMongoTemp.init();

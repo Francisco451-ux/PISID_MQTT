@@ -82,17 +82,9 @@ public class Mongo2MQTT2TEMP extends AbstractCloudToMongo implements MqttCallbac
                 JSONObject json = new JSONObject(payload.substring(mysqlString.indexOf('{')));
                 json.remove("_id");
                 json.remove("Hora");
-                String newKey = "IDMedicao";
-                JSONObject newJson = new JSONObject();
-                for (String key : json.keySet()) {
-                    if (key.equals("IDMongo")) {
-                        newJson.put(newKey, json.get(key));
-                    } else {
-                        newJson.put(key, json.get(key));
-                    }
-                }
-                newJson.put("IDExperiencia", "1");
-                String newPayload = newJson.toString();
+                json.remove("IDMongo");
+
+                String newPayload = json.toString();
                 MqttMessage newMessage = new MqttMessage(newPayload.getBytes());
                 mqttClient.publish(MQTT_Topico_TEMP, newMessage);
                 System.out.println("Publicado mensagem no tópico: " + MQTT_Topico_TEMP);

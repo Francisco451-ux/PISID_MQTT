@@ -18,11 +18,9 @@ import static com.mongodb.client.model.Indexes.descending;
 
 public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
 
-    String broker = "tcp://192.168.1.91:1883";
+
     String clientId = "mqtt_client";
-    String username = "mqtt_client";
-    String password = "123456";
-    String topic = "Move";
+
 
     private DBCollection Move;
 
@@ -118,7 +116,8 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
                 JSONObject json = new JSONObject(payload.substring(mysqlString.indexOf('{')));
                 json.remove("_id");
                 json.remove("Hora");
-                String newKey = "IDMedicao";
+                json.remove("IDMongo");
+                /*String newKey = "IDMedicao";
                 JSONObject newJson = new JSONObject();
                 for (String key : json.keySet()) {
                     if (key.equals("IDMongo")) {
@@ -126,8 +125,9 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
                     } else {
                         newJson.put(key, json.get(key));
                     }
-                }
-                String newPayload = newJson.toString();
+                }*/
+
+                String newPayload = json.toString();
                 MqttMessage newMessage = new MqttMessage(newPayload.getBytes());
                 mqttClient.publish(MQTT_Topico_Move, newMessage);
                 System.out.println("Publicado mensagem no tópico: " + MQTT_Topico_Move);

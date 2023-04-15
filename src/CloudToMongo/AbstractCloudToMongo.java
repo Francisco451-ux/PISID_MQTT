@@ -52,6 +52,7 @@ public abstract class AbstractCloudToMongo extends Thread implements MqttCallbac
     static String sql_database_user_to=  new String();
     static String sql_database_password_to=  new String();
     static String sql_table_to=  new String();
+    static String  sql_table_to_temp =  new String();
     protected Integer IDMongoTemp = -1;
     protected Integer IDMongoMov = -1;
 
@@ -103,6 +104,7 @@ public abstract class AbstractCloudToMongo extends Thread implements MqttCallbac
         sql_database_user_to=   p.getProperty("sql_database_user_to");
         sql_database_password_to=   p.getProperty("sql_database_password_to");
         sql_table_to=  p.getProperty("sql_table_to");
+        sql_table_to_temp = p.getProperty("sql_table_to_temp");
     }
     /*public void connecCloudTemp() {
         int i;

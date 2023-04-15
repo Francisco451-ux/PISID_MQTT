@@ -80,7 +80,9 @@ public class WriteMysql {
         int e = 1;
         int i=0;
         while (i<10) {
-            doc = "{IDMedicao:\""+i+"\", SalaEntrada:\""+2+"\", SalaSaida:\""+e+"\", IDExperiencia:"+e+"}";
+            //doc = "{IDMedicao:\""+i+"\", SalaEntrada:\""+2+"\", SalaSaida:\""+e+"\", IDExperiencia:\""+1+"\"}";
+            doc = "{IDMedicao:\""+i+"\", SalaEntrada:\""+2+"\", SalaSaida:\""+e+"\" }";
+            //doc = "{IDMedicao:\""+i+"\", SalaEntrada:\""+2+"\", SalaSaida:\""+e+"\", IDExperiencia:\""+0+"\"}";
             //WriteToMySQL(com.mongodb.util.JSON.serialize(doc));
             WriteToMySQL(doc);
             i++;

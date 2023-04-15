@@ -95,12 +95,12 @@ public class Simulator extends Thread {
             JSONObject jsonObject = new JSONObject();
 
             if (entrou) {
-                jsonObject.put("Sala Entrada", 1);
-                jsonObject.put("Sala Saida", 2);
+                jsonObject.put("SalaEntrada", 1);
+                jsonObject.put("SalaSaida", 2);
                 entrou = false;
             } else {
-                jsonObject.put("Sala Entrada", 2);
-                jsonObject.put("Sala Saida", 1);
+                jsonObject.put("SalaEntrada", 2);
+                jsonObject.put("SalaSaida", 1);
                 entrou = true;
             }
 

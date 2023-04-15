@@ -2,19 +2,19 @@ package CloudToMongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 import org.bson.Document;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import java.sql.Timestamp;
+import java.util.Random;
 
 public class CloudToMongoMove  extends AbstractCloudToMongo implements MqttCallback {
-    private DBCollection collection;
+    private DBCollection Move;
     private DBObject lastObject;
     private static int id = 1; // ID inicial
 
@@ -32,10 +32,13 @@ public class CloudToMongoMove  extends AbstractCloudToMongo implements MqttCallb
             throws Exception {
         try {
             DBObject document_json;
+            document_json = (DBObject) JSON.parse(c.toString());
             // Esta a perder a numeração do id a meio das connecçoes penso eu maybe
-            DBObject doc = new BasicDBObject("ID_Mongo: ", id++).append("sensor: ", new String(c.getPayload()));
-            document_json = (DBObject) JSON.parse(doc.toString());
-            mongo_collection_Move_db.insert(document_json);
+            //DBObject doc = new BasicDBObject("ID_Mongo: ", id++).append("sensor: ", new String(c.getPayload()));
+            addIDMongoTemp(1);
+            document_json.put("IDMongo", getIDMongoTemp());
+           // document_json = (DBObject) JSON.parse(c.toString());
+            Move.insert(document_json);
             System.out.println(document_json.toString());
             documentLabel.append(c.toString()+"\n");
         } catch (Exception e) {
@@ -85,7 +88,55 @@ public class CloudToMongoMove  extends AbstractCloudToMongo implements MqttCallb
 
     }
 
-    public void init() {
+    @Override
+    public void connectToCloudTemp() {
+
+    }
+
+    @Override
+    public void connectToMQTTMove() {
+
+    }
+
+    @Override
+    public void connectToCloudMove() {
+        int i;
+        try {
+            i = new Random().nextInt(100000);
+            mqttclient = new MqttClient(cloud_server, "CloudToMongo_"+String.valueOf(i)+"_"+cloud_topic_mov);
+            mqttclient.connect();
+            mqttclient.setCallback(this);
+            mqttclient.subscribe(cloud_topic_mov);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void initializeCollections() {
+        Move = db.getCollection(mongo_collection_Move);
+    }
+
+    @Override
+    protected void initializeIDMongo() {
+        if (Move != null) {
+            DBCursor cursor = Move.find()
+                    .sort(new BasicDBObject("IDMongo", -1))
+                    .limit(1);
+
+            DBObject doc = cursor.next();
+            if (doc.get("IDMongo") == null) {
+                addIDMongoTemp(2);
+            } else if (doc.get("IDMongo") != null) {
+                int s = (int) doc.get("IDMongo");
+                setIDMongoTemp(s);
+            } else if (getIDMongoTemp() != -1) {
+                addIDMongoTemp(1);
+            }
+        }
+    }
+
+    /*public void init() {
         createWindow();
         try {
             loadProperties();
@@ -96,5 +147,5 @@ public class CloudToMongoMove  extends AbstractCloudToMongo implements MqttCallb
         connecCloudMove();
         connectMongo(2);
         collection = mongo_collection_Move_db;
-    }
+    }*/
 }

@@ -17,7 +17,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public abstract class AbstractCloudToMongo implements MqttCallback {
+public abstract class AbstractCloudToMongo extends Thread implements MqttCallback {
     MqttClient mqttclient;
     static MongoClient mongoClient;
     static DB db;
@@ -41,6 +41,16 @@ public abstract class AbstractCloudToMongo implements MqttCallback {
     static String mongo_collection_Anomalias = new String();
     static String mongo_authentication = new String();
     static JTextArea documentLabel = new JTextArea("\n");
+    static String MQTT_Broker =  new String();
+    static String MQTT_Topico_TEMP =  new String();
+    static String MQTT_Topico_Move=  new String();
+    static String MQTT_Username_Mqtt=  new String();
+    static String MQTT_Username_tecnico=  new String();
+    static String MQTT_Password_Mqtt=  new String();
+    static String MQTT_Password_tecnico=  new String();
+
+    protected Integer IDMongoTemp = -1;
+    protected Integer IDMongoMov = -1;
 
     protected static void createWindow() {
         JFrame frame = new JFrame("Cloud to Mongo");
@@ -79,8 +89,15 @@ public abstract class AbstractCloudToMongo implements MqttCallback {
         mongo_collection_TEMP = p.getProperty("mongo_collection_TEMP");
         mongo_collection_Move = p.getProperty("mongo_collection_Move");
         mongo_collection_Anomalias = p.getProperty("mongo_collection_Anomalias");
+        MQTT_Broker =  p.getProperty("MQTT_Broker");
+        MQTT_Topico_TEMP =  p.getProperty("MQTT_Topico_TEMP");
+        MQTT_Topico_Move =  p.getProperty("MQTT_Topico_Move");
+        MQTT_Username_Mqtt=  p.getProperty("MQTT_Username_Mqtt");
+        MQTT_Username_tecnico=  p.getProperty("MQTT_Username_tecnico");
+        MQTT_Password_Mqtt=  p.getProperty("MQTT_Password_Mqtt");
+        MQTT_Password_tecnico=  p.getProperty("MQTT_Password_tecnico");
     }
-    public void connecCloudTemp() {
+    /*public void connecCloudTemp() {
         int i;
         try {
             i = new Random().nextInt(100000);
@@ -104,9 +121,20 @@ public abstract class AbstractCloudToMongo implements MqttCallback {
         } catch (MqttException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    public void connectMongo(final Integer tempId) {
+    public abstract void connectToCloudTemp();
+
+    public abstract void connectToMQTTMove();
+
+    public abstract void connectToCloudMove();
+
+    protected abstract void initializeCollections();
+
+    protected abstract void initializeIDMongo();
+
+
+    public void connectMongo() {
         String mongoURI = new String();
         mongoURI = "mongodb://";
         if (mongo_authentication.equals("true")) mongoURI = mongoURI + mongo_user + ":" + mongo_password + "@";
@@ -121,15 +149,54 @@ public abstract class AbstractCloudToMongo implements MqttCallback {
         /* mongocol = db.getCollection(mongo_collection);*/
         //mongo_collection_temp_db = db.getCollection(mongo_collection_TEMP);
         //mongo_collection_Move_db = db.getCollection(mongo_collection_Move);
-        if (tempId == 1) {
+       /* if (tempId == 1) {
             mongo_collection_temp_db = db.getCollection(mongo_collection_TEMP);
         } else if (tempId == 2) {
             mongo_collection_Move_db = db.getCollection(mongo_collection_Move);
         } else if (tempId == 0){
             mongo_collection_Anomalias_db = db.getCollection(mongo_collection_Anomalias);
-        }
+        }*/
+        initializeCollections();
 
     }
+
+    @Override
+    public void run() {
+        createWindow();
+        try {
+            loadProperties();
+        } catch (Exception e) {
+            System.out.println("Error reading CloudToMongo.CloudToMongo.ini file " + e);
+            JOptionPane.showMessageDialog(null, "The CloudToMongo.CloudToMongo.inifile wasn't found.", "CloudToMongo", JOptionPane.ERROR_MESSAGE);
+        }
+        connectToCloudTemp();
+        connectToCloudMove();
+        connectMongo();
+        connectToMQTTMove();
+        initializeIDMongo();
+    }
+
+    protected synchronized void addIDMongoTemp(Integer increment) {
+        IDMongoTemp += increment;
+    }
+
+
+    protected synchronized void setIDMongoTemp(Integer newValue) {
+        IDMongoTemp = newValue;
+    }
+
+    protected synchronized Integer getIDMongoTemp() {
+        return IDMongoTemp;
+    }
+
+    protected synchronized void addIDMongoMov() {
+        IDMongoMov = IDMongoMov != null ? IDMongoMov++ : 1;
+    }
+
+    protected synchronized Integer getIDMongoMov() {
+        return IDMongoMov;
+    }
+
 
 }
 

@@ -117,7 +117,17 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
                 String mysqlString = message.toString();
                 JSONObject json = new JSONObject(payload.substring(mysqlString.indexOf('{')));
                 json.remove("_id");
-                String newPayload = json.toString();
+                json.remove("Hora");
+                String newKey = "IDMEdicao";
+                JSONObject newJson = new JSONObject();
+                for (String key : json.keySet()) {
+                    if (key.equals("IDMongo")) {
+                        newJson.put(newKey, json.get(key));
+                    } else {
+                        newJson.put(key, json.get(key));
+                    }
+                }
+                String newPayload = newJson.toString();
                 MqttMessage newMessage = new MqttMessage(newPayload.getBytes());
                 mqttClient.publish(MQTT_Topico_Move, newMessage);
                 System.out.println("Publicado mensagem no tópico: " + MQTT_Topico_Move);
@@ -134,6 +144,11 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+    }
+
+    @Override
+    public void connectMQTT2MYSQLMove() {
 
     }
 

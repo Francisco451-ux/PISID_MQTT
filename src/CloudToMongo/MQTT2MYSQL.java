@@ -9,6 +9,7 @@ public class MQTT2MYSQL extends AbstractCloudToMongo implements MqttCallback {
     String username = "tecnico";
     String password = "123456";
     String topic = "Move";
+    WriteMysql connectionMysql = new WriteMysql();
 
     public MQTT2MYSQL() {
 
@@ -44,6 +45,8 @@ public class MQTT2MYSQL extends AbstractCloudToMongo implements MqttCallback {
 
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+        connectionMysql.ReadData(mqttMessage);
+       // connectionMysql.start();
         System.out.println("SUB SUB : Nova mensagem recebida no tópico: " + s);
         System.out.println("SUB SUB : Conteúdo da mensagem: " + new String(mqttMessage.getPayload()));
     }
@@ -85,6 +88,11 @@ public class MQTT2MYSQL extends AbstractCloudToMongo implements MqttCallback {
             System.out.println("Exceção ao se conectar ao broker: " + MQTT_Broker);
             me.printStackTrace();
         }
+
+    }
+
+    @Override
+    public void connectMQTT2MYSQLMove() {
 
     }
 

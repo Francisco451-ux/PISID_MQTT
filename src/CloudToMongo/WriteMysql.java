@@ -1,6 +1,9 @@
 
 package CloudToMongo;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -25,8 +28,30 @@ public class WriteMysql {
     static String sql_database_user_to= new String();
     static String  sql_table_to= new String();
 
+    public WriteMysql() {
+        createWindow();
+        try {
+            Properties p = new Properties();
+            p.load(new FileInputStream("C:\\Users\\Franc\\Downloads\\3ºProjecto\\PISID_MQTT\\src\\WriteMysql.ini"));
+            sql_table_to= p.getProperty("sql_table_to");
+            sql_database_connection_to = p.getProperty("sql_database_connection_to");
+            sql_database_password_to = p.getProperty("sql_database_password_to");
+            sql_database_user_to= p.getProperty("sql_database_user_to");
+        } catch (Exception e) {
+            System.out.println("Error reading WriteMysql.ini file " + e);
+            JOptionPane.showMessageDialog(null, "The WriteMysql inifile wasn't found.", "Data Migration", JOptionPane.ERROR_MESSAGE);
+        }
+        try {
+            Class.forName("org.mariadb.jdbc.Driver");
+            connTo =  DriverManager.getConnection(sql_database_connection_to,sql_database_user_to,sql_database_password_to);
+            documentLabel.append("SQl Connection:"+sql_database_connection_to+"\n");
+            documentLabel.append("Connection To MariaDB Destination " + sql_database_connection_to + " Suceeded"+"\n");
+        } catch (Exception e){System.out.println("Mysql Server Destination down, unable to make the connection. "+e);}
 
-    private static void createWindow() {
+    }
+
+
+    public static void createWindow() {
         JFrame frame = new JFrame("Data Bridge");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JLabel textLabel = new JLabel("Data : ",SwingConstants.CENTER);
@@ -47,7 +72,44 @@ public class WriteMysql {
         });
     }
 
-    public  static void main(String[] args) {
+   /* @Override
+    public void connectToCloudTemp() {
+
+    }
+
+    @Override
+    public void connectToMQTTMove() {
+
+    }
+
+    @Override
+    public void connectMQTT2MYSQLMove() {
+        try {
+            Class.forName("org.mariadb.jdbc.Driver");
+            connTo =  DriverManager.getConnection(sql_database_connection_to,sql_database_user_to,sql_database_password_to);
+            documentLabel.append("SQl Connection:"+sql_database_connection_to+"\n");
+            documentLabel.append("Connection To MariaDB Destination " + sql_database_connection_to + " Suceeded"+"\n");
+        } catch (Exception e){System.out.println("Mysql Server Destination down, unable to make the connection. "+e);}
+
+        ReadData(mqtt_message);
+    }
+
+    @Override
+    public void connectToCloudMove() {
+
+    }
+
+    @Override
+    protected void initializeCollections() {
+
+    }
+
+    @Override
+    protected void initializeIDMongo() {
+
+    }*/
+
+    /*public  static void main(String[] args) {
         createWindow();
         try {
             Properties p = new Properties();
@@ -60,29 +122,30 @@ public class WriteMysql {
             System.out.println("Error reading WriteMysql.ini file " + e);
             JOptionPane.showMessageDialog(null, "The WriteMysql inifile wasn't found.", "Data Migration", JOptionPane.ERROR_MESSAGE);
         }
-        new WriteMysql().connectDatabase_to();
+        //new WriteMysql().connectDatabase_to();
         new WriteMysql().ReadData();
-    }
+    }*/
 
-    public void connectDatabase_to() {
+    /*public void connectDatabase_to() {
         try {
             Class.forName("org.mariadb.jdbc.Driver");
             connTo =  DriverManager.getConnection(sql_database_connection_to,sql_database_user_to,sql_database_password_to);
             documentLabel.append("SQl Connection:"+sql_database_connection_to+"\n");
             documentLabel.append("Connection To MariaDB Destination " + sql_database_connection_to + " Suceeded"+"\n");
         } catch (Exception e){System.out.println("Mysql Server Destination down, unable to make the connection. "+e);}
-    }
+    }*/
 
 
-    public void ReadData() {
+    public void ReadData(MqttMessage mqtt_server_message) {
         System.out.println("Connect to MYSQL");
         String doc = new String();
         int e = 1;
         int i=0;
         while (i<10) {
             //doc = "{IDMedicao:\""+i+"\", SalaEntrada:\""+2+"\", SalaSaida:\""+e+"\", IDExperiencia:\""+1+"\"}";
-            doc = "{IDMedicao:\""+i+"\", SalaEntrada:\""+2+"\", SalaSaida:\""+e+"\" }";
+            //doc = "{IDMedicao:\""+i+"\", SalaEntrada:\""+2+"\", SalaSaida:\""+e+"\" }";
             //doc = "{IDMedicao:\""+i+"\", SalaEntrada:\""+2+"\", SalaSaida:\""+e+"\", IDExperiencia:\""+0+"\"}";
+            doc =  mqtt_server_message.toString();
             //WriteToMySQL(com.mongodb.util.JSON.serialize(doc));
             WriteToMySQL(doc);
             i++;
@@ -122,6 +185,7 @@ public class WriteMysql {
             s.close();
         } catch (Exception e){System.out.println("Error Inserting in the database . " + e); System.out.println(SqlCommando);}
     }
+
 
 
 }

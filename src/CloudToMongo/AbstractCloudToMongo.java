@@ -48,7 +48,10 @@ public abstract class AbstractCloudToMongo extends Thread implements MqttCallbac
     static String MQTT_Username_tecnico=  new String();
     static String MQTT_Password_Mqtt=  new String();
     static String MQTT_Password_tecnico=  new String();
-
+    static String sql_database_connection_to=  new String();
+    static String sql_database_user_to=  new String();
+    static String sql_database_password_to=  new String();
+    static String sql_table_to=  new String();
     protected Integer IDMongoTemp = -1;
     protected Integer IDMongoMov = -1;
 
@@ -96,6 +99,10 @@ public abstract class AbstractCloudToMongo extends Thread implements MqttCallbac
         MQTT_Username_tecnico=  p.getProperty("MQTT_Username_tecnico");
         MQTT_Password_Mqtt=  p.getProperty("MQTT_Password_Mqtt");
         MQTT_Password_tecnico=  p.getProperty("MQTT_Password_tecnico");
+        sql_database_connection_to=   p.getProperty("sql_database_connection_to");
+        sql_database_user_to=   p.getProperty("sql_database_user_to");
+        sql_database_password_to=   p.getProperty("sql_database_password_to");
+        sql_table_to=  p.getProperty("sql_table_to");
     }
     /*public void connecCloudTemp() {
         int i;
@@ -126,6 +133,8 @@ public abstract class AbstractCloudToMongo extends Thread implements MqttCallbac
     public abstract void connectToCloudTemp();
 
     public abstract void connectToMQTTMove();
+
+    public abstract void connectMQTT2MYSQLMove();
 
     public abstract void connectToCloudMove();
 
@@ -174,6 +183,7 @@ public abstract class AbstractCloudToMongo extends Thread implements MqttCallbac
         connectMongo();
         connectToMQTTMove();
         initializeIDMongo();
+        connectMQTT2MYSQLMove();
     }
 
     protected synchronized void addIDMongoTemp(Integer increment) {

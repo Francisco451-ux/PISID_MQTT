@@ -99,6 +99,11 @@ public class CloudToMongoMove  extends AbstractCloudToMongo implements MqttCallb
     }
 
     @Override
+    public void connectMQTT2MYSQLMove() {
+
+    }
+
+    @Override
     public void connectToCloudMove() {
         int i;
         try {

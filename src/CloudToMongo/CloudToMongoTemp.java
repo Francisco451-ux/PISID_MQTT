@@ -85,6 +85,11 @@ public class CloudToMongoTemp extends AbstractCloudToMongo implements MqttCallba
     }
 
     @Override
+    public void connectMQTT2MYSQLMove() {
+
+    }
+
+    @Override
     public void connectToCloudMove() {
 
     }

@@ -1,4 +1,5 @@
 package CloudToMongo;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -9,14 +10,12 @@ import com.mongodb.*;
 import com.mongodb.util.JSON;
 
 import java.util.*;
-import java.util.Vector;
-import java.io.File;
 import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MoveToMongo  implements MqttCallback {
+public class TestCloudTEMP implements MqttCallback {
     MqttClient mqttclient;
     static MongoClient mongoClient;
     static DB db;
@@ -40,6 +39,7 @@ public class MoveToMongo  implements MqttCallback {
     static JTextArea documentLabel = new JTextArea("\n");
 
 
+
     private static void createWindow() {
         JFrame frame = new JFrame("Cloud to Mongo");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -61,9 +61,10 @@ public class MoveToMongo  implements MqttCallback {
         });
     }
 
-    public static void main(String[] args) {
-        createWindow();
+
+    public static void main(String[] agrs) {
         try {
+            createWindow();
             Properties p = new Properties();
             p.load(new FileInputStream("C:\\Users\\Franc\\Downloads\\3ºProjecto\\PISID_MQTT\\src\\CloudToMongo.ini"));
             mongo_address = p.getProperty("mongo_address");
@@ -85,34 +86,22 @@ public class MoveToMongo  implements MqttCallback {
             System.out.println("Error reading CloudToMongo.ini file " + e);
             JOptionPane.showMessageDialog(null, "The CloudToMongo.inifile wasn't found.", "CloudToMongo", JOptionPane.ERROR_MESSAGE);
         }
-
-       /* try {
-            MqttClient  mqttClient1 = new MqttClient(cloud_server, "cliente-sensor");
-            mqttClient1.connect();
-            MqqToMove sensorPublisher = new MqqToMove(mqttClient1, cloud_topic_mov, cloud_topic_temp, 1000);
-            Thread thread = new Thread(sensorPublisher);
-            thread.start();
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }*/
-
-        new MoveToMongo().connecCloud();
-        new MoveToMongo().connectMongo();
+        new TestCloudTEMP().connecCloud();
+        new TestCloudTEMP().connectMongo();
     }
 
     public void connecCloud() {
         int i;
         try {
             i = new Random().nextInt(100000);
-            mqttclient = new MqttClient(cloud_server, "CloudToMongo_"+String.valueOf(i)+"_"+cloud_topic_mov);
+            mqttclient = new MqttClient(cloud_server, "CloudToMongo_"+String.valueOf(i)+"_"+cloud_topic_temp);
             mqttclient.connect();
             mqttclient.setCallback(this);
-            mqttclient.subscribe(cloud_topic_mov);
+            mqttclient.subscribe(cloud_topic_temp);
         } catch (MqttException e) {
             e.printStackTrace();
         }
     }
-
 
     public void connectMongo() {
         String mongoURI = new String();
@@ -126,7 +115,7 @@ public class MoveToMongo  implements MqttCallback {
         if (mongo_authentication.equals("true")) mongoURI = mongoURI  + "/?authSource=admin";
         MongoClient mongoClient = new MongoClient(new MongoClientURI(mongoURI));
         db = mongoClient.getDB(mongo_database);
-        /* mongocol = db.getCollection(mongo_collection);*/
+       /* mongocol = db.getCollection(mongo_collection);*/
         mongo_collection_temp_db = db.getCollection(mongo_collection_TEMP);
         mongo_collection_Move_db = db.getCollection(mongo_collection_Move);
     }
@@ -137,7 +126,7 @@ public class MoveToMongo  implements MqttCallback {
         try {
             DBObject document_json;
             document_json = (DBObject) JSON.parse(c.toString());
-            mongo_collection_Move_db.insert(document_json);
+            mongo_collection_temp_db.insert(document_json);
             documentLabel.append(c.toString()+"\n");
         } catch (Exception e) {
             System.out.println(e);

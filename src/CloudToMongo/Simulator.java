@@ -71,7 +71,7 @@ public class Simulator extends Thread {
 
             jsonObject.put("Sensor", (int) (Math.random() * 2) == 0 ? 1 : 2);
             jsonObject.put("Hora", getCurrentDate());
-            jsonObject.put("Temperatura", (Math.random() * 2) + 10);
+            jsonObject.put("Leitura", (Math.random() * 2) + 10);
 
             System.out.println("Gerei o JSON: " + jsonObject.toString());
             mqtt_message.setPayload(jsonObject.toString().getBytes());

@@ -1,24 +1,25 @@
 package CloudToMongo;
 
 import com.mongodb.BasicDBObject;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+import com.mongodb.DBCursor;
+import org.eclipse.paho.client.mqttv3.*;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import javax.swing.*;
 import java.sql.Timestamp;
+import java.util.NoSuchElementException;
+import java.util.Random;
 
 public class CloudToMongoTemp extends AbstractCloudToMongo implements MqttCallback {
     private static int tempId;
-    private DBCollection collection;
-    private static int id = 1; // ID inicial
+    private DBCollection temp;
+    //private static int id = 1; // ID inicial
 
-    public CloudToMongoTemp(final int tempId) {
-        CloudToMongoTemp.tempId = tempId;
+    public CloudToMongoTemp() {
+
 
     }
 
@@ -32,9 +33,12 @@ public class CloudToMongoTemp extends AbstractCloudToMongo implements MqttCallba
             throws Exception {
         try {
             DBObject document_json;
-           // DBObject doc = new BasicDBObject("ID_Mongo: ", id++).append("sensor: ", new String(c.getPayload()));
             document_json = (DBObject) JSON.parse(c.toString());
-            mongo_collection_temp_db.insert(document_json);
+           // DBObject doc = new BasicDBObject("ID_Mongo: ", id++).append("sensor: ", new String(c.getPayload()));
+            addIDMongoTemp(1);
+            document_json.put("IDMongo", getIDMongoTemp());
+
+            temp.insert(document_json);
             System.out.println(document_json.toString());
             documentLabel.append(c.toString()+"\n");
         } catch (Exception e) {
@@ -46,6 +50,7 @@ public class CloudToMongoTemp extends AbstractCloudToMongo implements MqttCallba
 
     }
 
+    /*
     public void init() {
         createWindow();
         try {
@@ -58,7 +63,65 @@ public class CloudToMongoTemp extends AbstractCloudToMongo implements MqttCallba
         connectMongo(1);
         collection = mongo_collection_temp_db;
 
+    }*/
+
+
+    @Override
+    public void connectToCloudTemp() {
+        int i;
+        try {
+            i = new Random().nextInt(100000);
+            mqttclient = new MqttClient(cloud_server, "CloudToMongo_"+String.valueOf(i)+"_"+cloud_topic_temp);
+            mqttclient.connect();
+            mqttclient.setCallback(this);
+            mqttclient.subscribe(cloud_topic_temp);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
+    @Override
+    public void connectToMQTTMove() {
 
+    }
+
+    @Override
+    public void connectMQTT2MYSQLMove() {
+
+    }
+
+    @Override
+    public void connectToCloudMove() {
+
+    }
+
+    @Override
+    protected void initializeCollections() {
+        temp = db.getCollection(mongo_collection_TEMP);
+    }
+
+    @Override
+    protected void initializeIDMongo() {
+        try {
+
+            if (temp != null) {
+                DBCursor cursor = temp.find()
+                        .sort(new BasicDBObject("IDMongo", -1))
+                        .limit(1);
+
+                DBObject doc = cursor.next();
+                if (doc.get("IDMongo") == null) {
+                    addIDMongoTemp(2);
+                } else if (doc.get("IDMongo") != null) {
+                    int s = (int) doc.get("IDMongo");
+                    setIDMongoTemp(s);
+                } else if (getIDMongoTemp() != -1) {
+                    addIDMongoTemp(1);
+                }
+            }
+        } catch (NoSuchElementException e) {
+            System.out.println("ERRO A PROCURA DO ID MAXIMO DO MONGODB DA COLLECTION TEMP");
+
+        }
+    }
 }

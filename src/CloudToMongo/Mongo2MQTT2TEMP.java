@@ -1,6 +1,5 @@
 package CloudToMongo;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -14,54 +13,22 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 
+import java.util.Random;
+
 import static com.mongodb.client.model.Indexes.descending;
 
 
-public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
+public class Mongo2MQTT2TEMP extends AbstractCloudToMongo implements MqttCallback {
 
 
     String clientId = "mqtt_client";
 
-
     private DBCollection Move;
 
-    public Mongo2MQTT() {
+    public Mongo2MQTT2TEMP() {
 
     }
 
-
-    /*public void connect2MQTT() {
-
-        MemoryPersistence persistence = new MemoryPersistence();
-
-        try {
-            MqttClient mqttClient = new MqttClient(broker, clientId, persistence);
-            MqttConnectOptions connOpts = new MqttConnectOptions();
-            connOpts.setCleanSession(true);
-            connOpts.setUserName(username);
-            connOpts.setPassword(password.toCharArray());
-
-            mqttClient.connect(connOpts);
-            System.out.println("Conectado ao broker: " + broker);
-            int i=0;
-            //while(i<100000) {
-                //String payload = String.format("{ \"ID_Mongo: \" : %d , \"sensor: \" : \"{Hora:\\\"2023-04-11 13:12:23.913836\\\", SalaEntrada:4, SalaSaida:5}\" , \"_id\" : { \"$oid\" : \"64354eae255a9e67243c584a\"}}", i, ++i);
-                //String payload = "{ \"ID_Mongo: \" : i , \"sensor: \" : \"{Hora:\\\"2023-04-11 13:12:23.913836\\\", SalaEntrada:4, SalaSaida:5}\" , \"_id\" : { \"$oid\" : \"64354eae255a9e67243c584a\"}}";
-                String payload = connect2Mongo();
-                MqttMessage message = new MqttMessage(payload.getBytes());
-                mqttClient.publish(topic, message);
-                System.out.println("Publicado mensagem no tópico: " + topic);
-                System.out.println("Conteúdo da mensagem: " + payload);
-                //i++;
-            //}
-            //mqttClient.disconnect();
-            //System.out.println("Desconectado do broker: " + broker);
-
-        } catch (MqttException me) {
-            System.out.println("Exceção ao se conectar ao broker: " + broker);
-            me.printStackTrace();
-        }
-    }*/
 
     @Override
     public void connectionLost(Throwable throwable) {
@@ -70,7 +37,7 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
 
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-        System.out.println("PUB PUB : Nova mensagem recebida no tópico: " + MQTT_Topico_Move);
+        System.out.println("PUB PUB : Nova mensagem recebida no tópico: " + MQTT_Topico_TEMP);
         System.out.println("PUB PUB : Conteúdo da mensagem: " + new String(mqttMessage.getPayload()));
     }
 
@@ -96,11 +63,11 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
         int i;
         try {
             i = new Random().nextInt(100000);
-            MqttClient mqttClient = new MqttClient(MQTT_Broker, "MongoToMqtt_"+String.valueOf(i)+"_"+MQTT_Topico_Move);
+            MqttClient mqttClient = new MqttClient(MQTT_Broker, "MongoToMqtt_"+String.valueOf(i)+"_"+MQTT_Topico_TEMP);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
-            connOpts.setUserName(MQTT_Username_Mqtt);
-            connOpts.setPassword(MQTT_Password_Mqtt.toCharArray());
+            connOpts.setUserName(MQTT_Username_temp_sub_tecnico);
+            connOpts.setPassword(MQTT_Password_temp_sub_tecnico.toCharArray());
 
             mqttClient.connect(connOpts);
             System.out.println("Conectado ao broker: " + MQTT_Broker);
@@ -110,13 +77,8 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
             //String payload = "{ \"ID_Mongo: \" : i , \"sensor: \" : \"{Hora:\\\"2023-04-11 13:12:23.913836\\\", SalaEntrada:4, SalaSaida:5}\" , \"_id\" : { \"$oid\" : \"64354eae255a9e67243c584a\"}}";
             //String payload = connect2Mongo();
             //MqttMessage message = new MqttMessage(payload.getBytes());
-            while(true) {
-                try {
-                    if (!mqttClient.isConnected()) {
-                        mqttClient.reconnect();
-                        System.out.println("Cliente MQTT reconectado.");
-                    }
-
+            while (true) {
+                sleep(1000);
                 String payload = ultimoIDMongo();
                 MqttMessage message = new MqttMessage(payload.getBytes());
                 String mysqlString = message.toString();
@@ -124,28 +86,13 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
                 json.remove("_id");
                 json.remove("Hora");
                 json.remove("IDMongo");
-                /*String newKey = "IDMedicao";
-                JSONObject newJson = new JSONObject();
-                for (String key : json.keySet()) {
-                    if (key.equals("IDMongo")) {
-                        newJson.put(newKey, json.get(key));
-                    } else {
-                        newJson.put(key, json.get(key));
-                    }
-                }*/
 
                 String newPayload = json.toString();
                 MqttMessage newMessage = new MqttMessage(newPayload.getBytes());
-                mqttClient.publish(MQTT_Topico_Move, newMessage);
-                System.out.println("Publicado mensagem no tópico: " + MQTT_Topico_Move);
+                mqttClient.publish(MQTT_Topico_TEMP, newMessage);
+                System.out.println("Publicado mensagem no tópico: " + MQTT_Topico_TEMP);
                 System.out.println("Conteúdo da mensagem: " + payload);
-                Thread.sleep(2000);
-                } catch (Exception e) {
-                    System.out.println("ERRO ao ligar ao  mqtt Do Move para fazer publish no tópico ");
-                    // Tratamento de exceção
-                    e.printStackTrace();
-                }
-                }
+            }
             //i++;
             //}
             //mqttClient.disconnect();
@@ -154,6 +101,8 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
         } catch (MqttException me) {
             System.out.println("Exceção ao se conectar ao broker: " + MQTT_Topico_Move);
             me.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
     }
@@ -170,7 +119,7 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
 
     @Override
     protected void initializeCollections() {
-        Move = db.getCollection(mongo_collection_Move);
+        Move = db.getCollection(mongo_collection_TEMP);
 
     }
 
@@ -179,7 +128,7 @@ public class Mongo2MQTT extends AbstractCloudToMongo implements MqttCallback {
 
     }
 
-    public String ultimoIDMongo(){
+    public String ultimoIDMongo() {
         // Buscando a linha com o último ID mais alto
         //Corrigir esta parte nao esta a ir buscar o ultimo id do mongo
         BasicDBObject query = new BasicDBObject();

@@ -13,6 +13,8 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 
+import java.util.Random;
+
 import static com.mongodb.client.model.Indexes.descending;
 
 
@@ -57,18 +59,19 @@ public class Mongo2MQTT2TEMP extends AbstractCloudToMongo implements MqttCallbac
 
     @Override
     public void connectToMQTTMove() {
-        MemoryPersistence persistence = new MemoryPersistence();
 
+        int i;
         try {
-            MqttClient mqttClient = new MqttClient(MQTT_Broker, clientId, persistence);
+            i = new Random().nextInt(100000);
+            MqttClient mqttClient = new MqttClient(MQTT_Broker, "MongoToMqtt_"+String.valueOf(i)+"_"+MQTT_Topico_TEMP);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
-            connOpts.setUserName(MQTT_Username_Mqtt);
-            connOpts.setPassword(MQTT_Password_Mqtt.toCharArray());
+            connOpts.setUserName(MQTT_Username_temp_sub_tecnico);
+            connOpts.setPassword(MQTT_Password_temp_sub_tecnico.toCharArray());
 
             mqttClient.connect(connOpts);
             System.out.println("Conectado ao broker: " + MQTT_Broker);
-            int i = 0;
+
             //while(i<100000) {
             //String payload = String.format("{ \"ID_Mongo: \" : %d , \"sensor: \" : \"{Hora:\\\"2023-04-11 13:12:23.913836\\\", SalaEntrada:4, SalaSaida:5}\" , \"_id\" : { \"$oid\" : \"64354eae255a9e67243c584a\"}}", i, ++i);
             //String payload = "{ \"ID_Mongo: \" : i , \"sensor: \" : \"{Hora:\\\"2023-04-11 13:12:23.913836\\\", SalaEntrada:4, SalaSaida:5}\" , \"_id\" : { \"$oid\" : \"64354eae255a9e67243c584a\"}}";

@@ -11,6 +11,7 @@ import org.eclipse.paho.client.mqttv3.*;
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import java.sql.Timestamp;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 public class CloudToMongoMove  extends AbstractCloudToMongo implements MqttCallback {
@@ -124,6 +125,8 @@ public class CloudToMongoMove  extends AbstractCloudToMongo implements MqttCallb
 
     @Override
     protected void initializeIDMongo() {
+        try {
+
         if (Move != null) {
             DBCursor cursor = Move.find()
                     .sort(new BasicDBObject("IDMongo", -1))
@@ -138,6 +141,10 @@ public class CloudToMongoMove  extends AbstractCloudToMongo implements MqttCallb
             } else if (getIDMongoTemp() != -1) {
                 addIDMongoTemp(1);
             }
+        }
+        } catch (NoSuchElementException e) {
+            System.out.println("ERRO A PROCURA DO ID MAXIMO DO MONGODB DA COLLECTION MOVE");
+
         }
     }
 

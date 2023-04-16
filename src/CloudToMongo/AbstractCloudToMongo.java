@@ -48,6 +48,13 @@ public abstract class AbstractCloudToMongo extends Thread implements MqttCallbac
     static String MQTT_Username_tecnico=  new String();
     static String MQTT_Password_Mqtt=  new String();
     static String MQTT_Password_tecnico=  new String();
+
+    static String MQTT_Username_temp_sub_tecnico=new String();
+    static String MQTT_Username_temp_tecnico=new String();
+    static String MQTT_Password_temp_sub_tecnico=new String();
+    static String MQTT_Password_tecnico_temp_tecnico=new String();
+
+
     static String sql_database_connection_to=  new String();
     static String sql_database_user_to=  new String();
     static String sql_database_password_to=  new String();
@@ -100,6 +107,12 @@ public abstract class AbstractCloudToMongo extends Thread implements MqttCallbac
         MQTT_Username_tecnico=  p.getProperty("MQTT_Username_tecnico");
         MQTT_Password_Mqtt=  p.getProperty("MQTT_Password_Mqtt");
         MQTT_Password_tecnico=  p.getProperty("MQTT_Password_tecnico");
+
+        MQTT_Username_temp_sub_tecnico= p.getProperty("MQTT_Username_temp_sub_tecnico");
+        MQTT_Username_temp_tecnico= p.getProperty("MQTT_Username_temp_tecnico");
+        MQTT_Password_temp_sub_tecnico= p.getProperty("MQTT_Password_temp_sub_tecnico");
+        MQTT_Password_tecnico_temp_tecnico= p.getProperty("MQTT_Password_tecnico_temp_tecnico");
+
         sql_database_connection_to=   p.getProperty("sql_database_connection_to");
         sql_database_user_to=   p.getProperty("sql_database_user_to");
         sql_database_password_to=   p.getProperty("sql_database_password_to");

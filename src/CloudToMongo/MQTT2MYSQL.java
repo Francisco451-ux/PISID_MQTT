@@ -3,13 +3,15 @@ package CloudToMongo;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.util.Random;
+
 public class MQTT2MYSQL extends AbstractCloudToMongo implements MqttCallback {
     String broker = "tcp://192.168.1.91:1883";
     String clientId = "tecnico";
     String username = "tecnico";
     String password = "123456";
     String topic = "Move";
-    WriteMysql connectionMysql = new WriteMysql();
+    WriteMysql connectionMysql = new WriteMysql(1);
 
     public MQTT2MYSQL() {
 
@@ -67,10 +69,12 @@ public class MQTT2MYSQL extends AbstractCloudToMongo implements MqttCallback {
 
     @Override
     public void connectToMQTTMove() {
-        MemoryPersistence persistence = new MemoryPersistence();
+
+        int i;
 
         try {
-            MqttClient mqttClient = new MqttClient(MQTT_Broker, clientId, persistence);
+            i = new Random().nextInt(100000);
+            MqttClient mqttClient = new MqttClient(MQTT_Broker, "MqttToMysql_"+String.valueOf(i)+"_"+MQTT_Topico_Move);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             connOpts.setUserName(MQTT_Username_tecnico);

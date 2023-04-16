@@ -10,6 +10,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 
 import javax.swing.*;
 import java.sql.Timestamp;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 public class CloudToMongoTemp extends AbstractCloudToMongo implements MqttCallback {
@@ -101,21 +102,26 @@ public class CloudToMongoTemp extends AbstractCloudToMongo implements MqttCallba
 
     @Override
     protected void initializeIDMongo() {
-        if (temp != null) {
-            DBCursor cursor = temp.find()
-                    .sort(new BasicDBObject("IDMongo", -1))
-                    .limit(1);
+        try {
 
-            DBObject doc = cursor.next();
-            if (doc.get("IDMongo") == null) {
-                addIDMongoTemp(2);
-            } else if (doc.get("IDMongo") != null) {
-                int s = (int) doc.get("IDMongo");
-                setIDMongoTemp(s);
-            } else if (getIDMongoTemp() != -1) {
-                addIDMongoTemp(1);
+            if (temp != null) {
+                DBCursor cursor = temp.find()
+                        .sort(new BasicDBObject("IDMongo", -1))
+                        .limit(1);
+
+                DBObject doc = cursor.next();
+                if (doc.get("IDMongo") == null) {
+                    addIDMongoTemp(2);
+                } else if (doc.get("IDMongo") != null) {
+                    int s = (int) doc.get("IDMongo");
+                    setIDMongoTemp(s);
+                } else if (getIDMongoTemp() != -1) {
+                    addIDMongoTemp(1);
+                }
             }
-        }
+        } catch (NoSuchElementException e) {
+            System.out.println("ERRO A PROCURA DO ID MAXIMO DO MONGODB DA COLLECTION TEMP");
 
+        }
     }
 }
